@@ -15,6 +15,8 @@ import logging.handlers
 import requests
 from openpyxl import Workbook
 from openpyxl.styles import Font
+from dotenv import load_dotenv
+load_dotenv()
 
 # Define your log file path
 log_file_path = "log.txt"
