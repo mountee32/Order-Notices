@@ -1,0 +1,48 @@
+03/04/2024 21:26:24 - INFO - No existing processed orders found
+03/04/2024 21:26:26 - INFO - Read 45 orders from WooCommerce in 'processing' state (page 1)
+03/04/2024 21:26:28 - INFO - 22 orders have not been previously processed and will be processed now
+03/04/2024 21:26:28 - INFO - Processing order ID: 7188
+03/04/2024 21:26:29 - INFO - Email sent for order ID 7188
+03/04/2024 21:26:29 - INFO - Processing order ID: 7187
+03/04/2024 21:26:31 - INFO - Email sent for order ID 7187
+03/04/2024 21:26:31 - INFO - Processing order ID: 7135
+03/04/2024 21:26:33 - INFO - Email sent for order ID 7135
+03/04/2024 21:26:33 - INFO - Processing order ID: 7130
+03/04/2024 21:26:34 - INFO - Email sent for order ID 7130
+03/04/2024 21:26:34 - INFO - Processing order ID: 7129
+03/04/2024 21:26:36 - INFO - Email sent for order ID 7129
+03/04/2024 21:26:36 - INFO - Processing order ID: 7127
+03/04/2024 21:26:38 - INFO - Email sent for order ID 7127
+03/04/2024 21:26:38 - INFO - Processing order ID: 6801
+03/04/2024 21:26:39 - INFO - Email sent for order ID 6801
+03/04/2024 21:26:39 - INFO - Processing order ID: 6800
+03/04/2024 21:26:41 - INFO - Email sent for order ID 6800
+03/04/2024 21:26:41 - INFO - Processing order ID: 6674
+03/04/2024 21:26:44 - INFO - Email sent for order ID 6674
+03/04/2024 21:26:44 - INFO - Processing order ID: 6665
+03/04/2024 21:26:46 - INFO - Email sent for order ID 6665
+03/04/2024 21:26:46 - INFO - Processing order ID: 6664
+03/04/2024 21:26:47 - INFO - Email sent for order ID 6664
+03/04/2024 21:26:47 - INFO - Processing order ID: 6636
+03/04/2024 21:26:48 - INFO - Email sent for order ID 6636
+03/04/2024 21:26:48 - INFO - Processing order ID: 6630
+03/04/2024 21:26:50 - INFO - Email sent for order ID 6630
+03/04/2024 21:26:50 - INFO - Processing order ID: 6274
+03/04/2024 21:26:51 - INFO - Email sent for order ID 6274
+03/04/2024 21:26:51 - INFO - Processing order ID: 6265
+03/04/2024 21:26:53 - INFO - Email sent for order ID 6265
+03/04/2024 21:26:53 - INFO - Processing order ID: 6259
+03/04/2024 21:26:54 - INFO - Email sent for order ID 6259
+03/04/2024 21:26:54 - INFO - Processing order ID: 6258
+03/04/2024 21:26:55 - INFO - Email sent for order ID 6258
+03/04/2024 21:26:55 - INFO - Processing order ID: 4654
+03/04/2024 21:26:57 - INFO - Email sent for order ID 4654
+03/04/2024 21:26:57 - INFO - Processing order ID: 4614
+03/04/2024 21:26:58 - INFO - Email sent for order ID 4614
+03/04/2024 21:26:58 - INFO - Processing order ID: 4570
+03/04/2024 21:27:00 - INFO - Email sent for order ID 4570
+03/04/2024 21:27:00 - INFO - Processing order ID: 4534
+03/04/2024 21:27:01 - INFO - Email sent for order ID 4534
+03/04/2024 21:27:01 - INFO - Processing order ID: 22
+03/04/2024 21:27:03 - INFO - Email sent for order ID 22
+03/04/2024 21:27:03 - INFO - Saved 22 processed orders to the JSON file
