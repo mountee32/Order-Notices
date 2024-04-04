@@ -18,7 +18,7 @@ from openpyxl.styles import Font
 from dotenv import load_dotenv
 load_dotenv()
 
-# Define your log file path
+# Define your log file path here
 log_file_path = "log.txt"
 
 # Create logger
