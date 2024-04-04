@@ -10,6 +10,7 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import sys
 
 import logging.handlers
 import requests
@@ -20,6 +21,9 @@ load_dotenv()
 
 # Define your log file path here 
 log_file_path = "log.txt"
+
+# Check if the "excel" parameter is provided
+attach_excel = "excel" in sys.argv
 
 # Create logger
 logger = logging.getLogger('my_logger') 
@@ -178,12 +182,13 @@ for order in new_orders:
 		text = MIMEText(packing_slip)
 		msg.attach(text)
 
-		# Attach the Excel spreadsheet
-		part = MIMEBase("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-		part.set_payload(excel_file.read())
-		encoders.encode_base64(part)
-		part.add_header("Content-Disposition", f"attachment; filename=order_{order['id']}.xlsx",)
-		msg.attach(part)
+		# Attach the Excel spreadsheet if the "excel" parameter is provided
+		if attach_excel:
+				part = MIMEBase("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+				part.set_payload(excel_file.read())
+				encoders.encode_base64(part)
+				part.add_header("Content-Disposition", f"attachment; filename=order_{order['id']}.xlsx",)
+				msg.attach(part)
 
 		try:
 				with smtplib.SMTP(smtp_server, smtp_port) as server:
