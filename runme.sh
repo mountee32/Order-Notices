@@ -18,7 +18,7 @@ while true; do
 				# If the directory exists, pull the latest changes
 				git pull
 		fi
-
+		chmod +x runme.sh
 		# Install required Python modules (just needed the first time)
 		# pip3 install -r requirements.txt
 
