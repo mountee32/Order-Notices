@@ -13,7 +13,7 @@ if screen -list | grep -q "$screen_name"; then
     screen -r "$screen_name"
 else
     echo "Screen session doesn't exist, creating new"
-    screen -dmS "$screen_name" bash -c '
+    screen -dmS "$screen_name" bash -c "
         while true; do
             # Change to the repository directory
             cd "$REPO_DIR"
@@ -24,18 +24,19 @@ else
                 git clone "$REPO_URL" "$REPO_DIR"
             else
                 # If the directory exists, pull the latest changes
-                git pull
-            fi
-            chmod +x runme.sh
-            # Install required Python modules (just needed the first time)
-            # pip3 install -r  requirements.txt 
+                git pull && {
+                    chmod +x runme.sh
+                    # Install required Python modules (just needed the first time)
+                    # pip3 install -r requirements.txt
 
-            # Run the Python program
-            python3 main.py
-            # python3 main.py excel
+                    # Run the Python program
+                    python3 main.py
+                    # python3 main.py excel
+                }
+            fi
 
             # Sleep for 2 minutes (120 seconds)
             sleep 120
         done
-    '
+    "
 fi
