@@ -28,7 +28,7 @@ else
             fi
             chmod +x runme.sh
             # Install required Python modules (just needed the first time)
-            # pip3 install -r requirements.txt
+            # pip3 install -r  requirements.txt 
 
             # Run the Python program
             python3 main.py
