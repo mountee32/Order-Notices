@@ -23,7 +23,7 @@ while true; do
 		# pip3 install -r requirements.txt
 
 		# Run the Python program
-		#python3 main.py
+		python3 main.py
 		# python3 main.py excel
 
 		# Sleep for 2 minutes (120 seconds)
