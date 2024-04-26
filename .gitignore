@@ -1,6 +1,7 @@
 # My output files exlclude
 log.txt
 processed_orders.json
+pending_orders.json
 .replit
 
 

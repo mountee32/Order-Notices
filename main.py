@@ -1,3 +1,4 @@
+# version 1.1 with processing emails sent as well
 import base64
 import html
 import json
