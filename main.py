@@ -13,8 +13,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 log_file_path = "log.txt"
-logger = logging.getLogger('my_logger') 
-logger.setLevel(logging.INFO) 
+logger = logging.getLogger('my_logger')
+logger.setLevel(logging.INFO)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 file_handler = logging.handlers.RotatingFileHandler(log_file_path, backupCount=3)
@@ -41,15 +41,24 @@ headers = {
 		"Authorization": f"Basic {auth}"
 }
 
-json_file = "processed_orders.json"
+processed_orders_file = "processed_orders.json"
+pending_orders_file = "pending_orders.json"
 
 try:
-		with open(json_file, "r") as f:
+		with open(processed_orders_file, "r") as f:
 				processed_orders = set(json.load(f))
 				logger.info(f"Read {len(processed_orders)} existing orders previously processed")
 except FileNotFoundError:
 		processed_orders = set()
 		logger.info("No existing processed orders found")
+
+try:
+		with open(pending_orders_file, "r") as f:
+				pending_orders = set(json.load(f))
+				logger.info(f"Read {len(pending_orders)} existing orders previously marked as pending")
+except FileNotFoundError:
+		pending_orders = set()
+		logger.info("No existing pending orders found")
 
 statuses = ["pending", "processing", "on-hold", "completed", "cancelled", "refunded", "failed"]
 status_counts = {}
@@ -67,15 +76,17 @@ while True:
 		if response.json():
 				orders = response.json()
 				all_orders.extend(orders)
-				logger.info(f"Read {len(orders)} orders from WooCommerce in 'processing' state (page {page})")
+				logger.info(f"Read {len(orders)} orders from WooCommerce in 'processing' or 'pending' state (page {page})")
 				page += 1
 		else:
 				break
 
 new_orders = [
-		order for order in all_orders if order["status"] == "processing" and order["id"] not in processed_orders
+		order for order in all_orders
+		if (order["status"] == "processing" and order["id"] not in processed_orders)
+		or (order["status"] == "pending" and order["id"] not in pending_orders)
 ]
-logger.info(f"{len(new_orders)} orders have not been previously processed and will be processed now")
+logger.info(f"{len(new_orders)} orders have not been previously processed or marked as pending and will be processed now")
 
 for order in new_orders:
 		logger.info(f"Processing order ID: {order['id']}")
@@ -105,7 +116,10 @@ for order in new_orders:
 		packing_slip += "\n--------------------"
 
 		msg = MIMEMultipart()
-		msg["Subject"] = f"New Order - Order ID {order['id']}"
+		if order["status"] == "processing":
+				msg["Subject"] = f"New Order - Order ID {order['id']}"
+		else:
+				msg["Subject"] = f"Pending Order - Order ID {order['id']}"
 		msg["From"] = smtp_username
 		msg['To'] = recipient_emails
 
@@ -123,8 +137,15 @@ for order in new_orders:
 
 		print(packing_slip)
 
-		processed_orders.add(order['id'])
+		if order["status"] == "processing":
+				processed_orders.add(order['id'])
+		else:
+				pending_orders.add(order['id'])
 
-with open(json_file, 'w') as f:
+with open(processed_orders_file, 'w') as f:
 		json.dump(list(processed_orders), f)
 		logger.info(f"Saved {len(processed_orders)} processed orders to the JSON file")
+
+with open(pending_orders_file, 'w') as f:
+		json.dump(list(pending_orders), f)
+		logger.info(f"Saved {len(pending_orders)} pending orders to the JSON file")
