@@ -57,7 +57,6 @@ CONSUMER_SECRET = os.environ["SECRET"]
 recipient_emails = os.environ['SMTP_TO']
 orders_url = os.environ['ORDERS_URL']
 
-
 auth = base64.b64encode(f"{CONSUMER_KEY}:{CONSUMER_SECRET}".encode("utf-8")).decode("utf-8")
 
 headers = {
@@ -76,6 +75,15 @@ except FileNotFoundError:
 		processed_orders = set()
 		logger.info("No existing processed orders found")
 
+# Retrieve the count of orders in each status
+statuses = ["pending", "processing", "on-hold", "completed", "cancelled", "refunded", "failed"]
+status_counts = {}
+
+for status in statuses:
+		response = requests.get(f"{orders_url}?status={status}", headers=headers)
+		status_counts[status] = response.headers["X-WP-Total"]
+		logger.info(f"Number of orders in '{status}' status: {status_counts[status]}")
+
 # Create an empty list to store all the orders
 all_orders = []
 
@@ -92,7 +100,6 @@ while True:
 		# If response is empty, break the loop.
 		else:
 				break
-
 
 new_orders = [
 		order for order in all_orders if order["status"] == "processing" and order["id"] not in processed_orders
