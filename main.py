@@ -5,6 +5,7 @@ import os
 from functools import wraps
 from dotenv import load_dotenv
 import time
+import json
 
 # Import your existing script
 from order_processing import process_orders
@@ -26,21 +27,36 @@ def background_task():
 				time.sleep(300)  # Run every 5 minutes
 
 def token_required(f):
-	@wraps(f)
-	def decorated_function(*args, **kwargs):
-			token = request.args.get('token')
-			print(f"Received token: {token}")  # Debugging print
-			if token and token == SECRET_TOKEN:
-					return f(*args, **kwargs)
-			else:
-					abort(401)
-	return decorated_function
+		@wraps(f)
+		def decorated_function(*args, **kwargs):
+				token = request.args.get('token')
+				print(f"Received token: {token}")  # Debugging print
+				if token and token == SECRET_TOKEN:
+						return f(*args, **kwargs)
+				else:
+						abort(401)
+		return decorated_function
 
+def get_processed_orders():
+		try:
+				with open('processed_orders.json', 'r') as f:
+						return json.load(f)
+		except FileNotFoundError:
+				return []
+
+def get_log_content():
+		try:
+				with open('log.txt', 'r') as f:
+						return f.read()
+		except FileNotFoundError:
+				return "No log file found."
 
 @app.route('/')
 @token_required
 def home():
-		return render_template('home.html', status=keep_running)
+		processed_orders = get_processed_orders()
+		log_content = get_log_content()
+		return render_template('home.html', status=keep_running, processed_orders=processed_orders, log_content=log_content)
 
 @app.route('/toggle', methods=['POST'])
 @token_required

@@ -1,20 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Order Processing Dashboard</title>
-		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Processing Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .log-container {
+            height: 300px;
+            overflow-y: scroll;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            font-family: monospace;
+        }
+        .orders-container {
+            height: 100px;
+            overflow-x: auto;
+            white-space: nowrap;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+        }
+        .order-id {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 5px 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-		<div class="container mt-5">
-				<h1>Order Processing Dashboard</h1>
-				<p>Status: {% if status %}Running{% else %}Stopped{% endif %}</p>
-				<form action="{{ url_for('toggle', token=request.args.get('token')) }}" method="post">
-						<button type="submit" class="btn btn-primary">
-								{% if status %}Stop{% else %}Start{% endif %} Processing
-						</button>
-				</form>
-		</div>
+    <div class="container mt-5">
+        <h1>Order Processing Dashboard</h1>
+        <p>Status: {% if status %}Running{% else %}Stopped{% endif %}</p>
+        <form action="{{ url_for('toggle', token=request.args.get('token')) }}" method="post">
+            <button type="submit" class="btn btn-primary mb-3">
+                {% if status %}Stop{% else %}Start{% endif %} Processing
+            </button>
+        </form>
+
+        <h2>Processed Orders</h2>
+        <div class="orders-container mb-3">
+            {% for order_id in processed_orders %}
+                <span class="order-id">{{ order_id }}</span>
+            {% endfor %}
+        </div>
+
+        <h2>Activity Log</h2>
+        <div class="log-container mb-3">
+            <pre>{{ log_content }}</pre>
+        </div>
+    </div>
 </body>
 </html>
