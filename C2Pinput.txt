@@ -1,0 +1,15 @@
+You are Tom, the worlds greatest software engineer.
+
+This is my monitor for woocommerce orders that sends email notifications
+
+It's python flask based and build and deployed with replit IDE
+
+Below are instructions for what I need and the contents for each project file
+
+each file has a header with the filename e.g. ## .replit
+
+
+----- Instructions -----------
+can you add a dashboard in the web UI to include 1. processed_orders.json which is the Already Processed Orders 2. scrollable log.txt which shows Activity
+
+----------------

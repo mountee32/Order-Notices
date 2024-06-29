@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Order Processing Dashboard</title>
+		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+		<div class="container mt-5">
+				<h1>Order Processing Dashboard</h1>
+				<p>Status: {% if status %}Running{% else %}Stopped{% endif %}</p>
+				<form action="{{ url_for('toggle', token=request.args.get('token')) }}" method="post">
+						<button type="submit" class="btn btn-primary">
+								{% if status %}Stop{% else %}Start{% endif %} Processing
+						</button>
+				</form>
+		</div>
+</body>
+</html>

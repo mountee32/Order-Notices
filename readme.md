@@ -1,3 +1,16 @@
+run with the replit run button
+
+https://c77cf20c-60ed-4f22-9393-52be4563a43e-00-3g130mkr4kvbo.worf.replit.dev/?initialPath=%2F&id=%3Ar1hq%3A&token=kkfgdfd434343
+
+**Add this to the URL:**
+
+&token=kkfgdfd434343
+
+Run LLLM Script
+-----------------
+clear && chmod +x C2P.sh && ./C2P.sh
+
+
 **Imports and Setup**
 ===============
 
