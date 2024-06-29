@@ -41,6 +41,29 @@
             </button>
         </form>
 
+        <h2>Order Statistics</h2>
+        <div class="row mb-3">
+            {% if order_statistics %}
+                {% for period, stats in order_statistics.items() %}
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Last {{ period }}</h5>
+                            <p class="card-text">Total Orders: {{ stats.total_orders }}</p>
+                            <p class="card-text">Total Revenue: ${{ "%.2f"|format(stats.total_revenue) }}</p>
+                            <p class="card-text">Avg Order Value: ${{ "%.2f"|format(stats.avg_order_value) }}</p>
+                            <p class="card-text">New Customers: {{ stats.new_customers }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <p>No order statistics available.</p>
+                </div>
+            {% endif %}
+        </div>
+
         <h2>Processed Orders</h2>
         <div class="orders-container mb-3">
             {% for order_id in processed_orders %}
