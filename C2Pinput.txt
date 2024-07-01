@@ -10,9 +10,6 @@ each file has a header with the filename e.g. ## .replit
 
 
 ----- Instructions -----------
-can i add logging to see why i get
-
-Order Statistics
-No order statistics available.
+how can i read/write the processed orders to a persistant replit database storage instead of a local json file?
 
 ----------------

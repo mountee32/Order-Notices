@@ -1,8 +1,6 @@
-## order_statistics.py
-
-import json
 import logging
 from datetime import datetime, timedelta
+from replit import db
 
 logger = logging.getLogger('my_logger')
 
@@ -42,26 +40,18 @@ def update_order_statistics(orders):
 		logger.info(f"Calculated statistics: {stats}")
 
 		try:
-				with open('order_statistics.json', 'w') as f:
-						json.dump(stats, f)
-				logger.info("Successfully wrote order statistics to file")
+				db["order_statistics"] = stats
+				logger.info("Successfully wrote order statistics to Replit DB")
 		except Exception as e:
-				logger.error(f"Error writing order statistics to file: {str(e)}")
+				logger.error(f"Error writing order statistics to Replit DB: {str(e)}")
 
 		logger.info("Finished updating order statistics")
 
 def get_order_statistics():
 		try:
-				with open('order_statistics.json', 'r') as f:
-						stats = json.load(f)
-						logger.debug(f"Successfully read order statistics: {stats}")
-						return stats
-		except FileNotFoundError:
-				logger.error("order_statistics.json file not found")
-				return {}
-		except json.JSONDecodeError:
-				logger.error("Error decoding order_statistics.json")
-				return {}
+				stats = db.get("order_statistics", {})
+				logger.debug(f"Successfully read order statistics from Replit DB: {stats}")
+				return stats
 		except Exception as e:
-				logger.error(f"Unexpected error reading order_statistics.json: {str(e)}")
+				logger.error(f"Error reading order statistics from Replit DB: {str(e)}")
 				return {}

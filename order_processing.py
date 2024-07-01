@@ -1,6 +1,5 @@
 import base64
 import html
-import json
 import logging
 import os
 import smtplib
@@ -10,6 +9,7 @@ from email.mime.text import MIMEText
 import logging.handlers
 import requests
 from dotenv import load_dotenv
+from replit import db
 
 load_dotenv()
 
@@ -43,24 +43,10 @@ def process_orders():
 				"Authorization": f"Basic {auth}"
 		}
 
-		processed_orders_file = "processed_orders.json"
-		pending_orders_file = "pending_orders.json"
-
-		try:
-				with open(processed_orders_file, "r") as f:
-						processed_orders = set(json.load(f))
-						logger.info(f"Read {len(processed_orders)} existing orders previously processed")
-		except FileNotFoundError:
-				processed_orders = set()
-				logger.info("No existing processed orders found")
-
-		try:
-				with open(pending_orders_file, "r") as f:
-						pending_orders = set(json.load(f))
-						logger.info(f"Read {len(pending_orders)} existing orders previously marked as pending")
-		except FileNotFoundError:
-				pending_orders = set()
-				logger.info("No existing pending orders found")
+		processed_orders = set(db.get("processed_orders", []))
+		pending_orders = set(db.get("pending_orders", []))
+		logger.info(f"Read {len(processed_orders)} existing orders previously processed")
+		logger.info(f"Read {len(pending_orders)} existing orders previously marked as pending")
 
 		statuses = ["pending", "processing", "on-hold", "completed", "cancelled", "refunded", "failed"]
 		status_counts = {}
@@ -160,12 +146,9 @@ def process_orders():
 				# else:
 				#     pending_orders.add(order['id'])
 
-		with open(processed_orders_file, 'w') as f:
-				json.dump(list(processed_orders), f)
-				logger.info(f"Saved {len(processed_orders)} processed orders to the JSON file")
-
-		with open(pending_orders_file, 'w') as f:
-				json.dump(list(pending_orders), f)
-				logger.info(f"Saved {len(pending_orders)} pending orders to the JSON file")
+		db["processed_orders"] = list(processed_orders)
+		db["pending_orders"] = list(pending_orders)
+		logger.info(f"Saved {len(processed_orders)} processed orders to the Replit DB")
+		logger.info(f"Saved {len(pending_orders)} pending orders to the Replit DB")
 
 		return all_orders

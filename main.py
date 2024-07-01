@@ -1,5 +1,3 @@
-## main.py
-
 from flask import Flask, render_template, request, redirect, url_for, abort
 from apscheduler.schedulers.background import BackgroundScheduler
 import threading
@@ -7,8 +5,8 @@ import os
 from functools import wraps
 from dotenv import load_dotenv
 import time
-import json
 import logging
+from replit import db
 
 # Import from both files
 from order_processing import process_orders
@@ -39,6 +37,21 @@ console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
+# Add database log handler
+class DatabaseLogHandler(logging.Handler):
+		def emit(self, record):
+				log_entry = self.format(record)
+				if "log_entries" not in db:
+						db["log_entries"] = []
+				db["log_entries"].append(log_entry)
+				# Keep only the last 1000 log entries
+				db["log_entries"] = db["log_entries"][-1000:]
+
+db_handler = DatabaseLogHandler()
+db_handler.setLevel(logging.INFO)
+db_handler.setFormatter(formatter)
+logger.addHandler(db_handler)
+
 def background_task():
 		global keep_running
 		while keep_running:
@@ -62,26 +75,15 @@ def token_required(f):
 
 def get_processed_orders():
 		try:
-				with open('processed_orders.json', 'r') as f:
-						orders = json.load(f)
-						logger.debug(f"Loaded {len(orders)} processed orders")
-						return orders
-		except FileNotFoundError:
-				logger.warning("processed_orders.json not found")
-				return []
-		except json.JSONDecodeError:
-				logger.error("Error decoding processed_orders.json")
+				orders = db.get("processed_orders", [])
+				logger.debug(f"Loaded {len(orders)} processed orders from Replit DB")
+				return orders
+		except Exception as e:
+				logger.error(f"Error loading processed orders from Replit DB: {str(e)}")
 				return []
 
 def get_log_content():
-		try:
-				with open('log.txt', 'r') as f:
-						content = f.read()
-						logger.debug("Log content loaded successfully")
-						return content
-		except FileNotFoundError:
-				logger.warning("log.txt not found")
-				return "No log file found."
+		return "\n".join(db.get("log_entries", []))
 
 @app.route('/')
 @token_required
