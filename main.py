@@ -1,5 +1,3 @@
-## main.py
-
 from flask import Flask, render_template, request, redirect, url_for, abort, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
 import threading
@@ -45,9 +43,9 @@ class DatabaseLogHandler(logging.Handler):
 				log_entry = self.format(record)
 				if "log_entries" not in db:
 						db["log_entries"] = []
-				db["log_entries"].append(log_entry)
+				db["log_entries"].insert(0, log_entry)  # Insert at the beginning of the list
 				# Keep only the last 1000 log entries
-				db["log_entries"] = db["log_entries"][-1000:]
+				db["log_entries"] = db["log_entries"][:1000]
 
 db_handler = DatabaseLogHandler()
 db_handler.setLevel(logging.INFO)
@@ -78,6 +76,7 @@ def token_required(f):
 def get_processed_orders():
 		try:
 				orders = db.get("processed_orders", [])
+				orders = list(orders)  # Ensure it's a regular Python list
 				logger.debug(f"Loaded {len(orders)} processed orders from Replit DB")
 				return orders
 		except Exception as e:
@@ -92,6 +91,7 @@ def get_log_content():
 def home():
 		logger.info("Home route accessed")
 		processed_orders = get_processed_orders()
+		processed_orders.sort(reverse=True)  # Sort in descending order
 		log_content = get_log_content()
 		order_statistics = get_order_statistics()
 		logger.info(f"Rendering home page with order_statistics: {order_statistics}")
@@ -117,7 +117,7 @@ def delete_order():
 
 		try:
 				order_id = int(order_id)
-				processed_orders = db.get("processed_orders", [])
+				processed_orders = get_processed_orders()
 				if order_id in processed_orders:
 						processed_orders.remove(order_id)
 						db["processed_orders"] = processed_orders
@@ -130,6 +130,17 @@ def delete_order():
 		except Exception as e:
 				logger.error(f"Error removing order {order_id} for reprocessing: {str(e)}")
 				return jsonify({'success': False, 'message': 'An error occurred while removing the order for reprocessing'}), 500
+
+@app.route('/clear_log', methods=['POST'])
+@token_required
+def clear_log():
+		try:
+				db["log_entries"] = []
+				logger.info("Activity log cleared")
+				return jsonify({'success': True, 'message': 'Activity log cleared successfully'})
+		except Exception as e:
+				logger.error(f"Error clearing activity log: {str(e)}")
+				return jsonify({'success': False, 'message': 'An error occurred while clearing the activity log'}), 500
 
 if __name__ == '__main__':
 		logger.info("Starting the application")

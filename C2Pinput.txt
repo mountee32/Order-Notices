@@ -10,6 +10,6 @@ each file has a header with the filename e.g. ## .replit
 
 
 ----- Instructions -----------
-in the dashboard can i have CRUD controls for processed orders being displayed, I only need the delete CRUD control, if i click on an order number shown in the UI it should popup and and confirm the order number should be deleted yes/no and then act accordingly
+can we sort the activity log from newest at the top to oldest at the bottom, give the full code for changed files
 
 ----------------
