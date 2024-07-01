@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, abort
+## main.py
+
+from flask import Flask, render_template, request, redirect, url_for, abort, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
 import threading
 import os
@@ -105,6 +107,29 @@ def toggle():
 				thread = threading.Thread(target=background_task)
 				thread.start()
 		return redirect(url_for('home', token=SECRET_TOKEN))
+
+@app.route('/delete_order', methods=['POST'])
+@token_required
+def delete_order():
+		order_id = request.form.get('order_id')
+		if not order_id:
+				return jsonify({'success': False, 'message': 'No order ID provided'}), 400
+
+		try:
+				order_id = int(order_id)
+				processed_orders = db.get("processed_orders", [])
+				if order_id in processed_orders:
+						processed_orders.remove(order_id)
+						db["processed_orders"] = processed_orders
+						logger.info(f"Order {order_id} removed from processed orders for reprocessing")
+						return jsonify({'success': True, 'message': f'Order {order_id} removed for reprocessing'})
+				else:
+						return jsonify({'success': False, 'message': f'Order {order_id} not found in processed orders'}), 404
+		except ValueError:
+				return jsonify({'success': False, 'message': 'Invalid order ID'}), 400
+		except Exception as e:
+				logger.error(f"Error removing order {order_id} for reprocessing: {str(e)}")
+				return jsonify({'success': False, 'message': 'An error occurred while removing the order for reprocessing'}), 500
 
 if __name__ == '__main__':
 		logger.info("Starting the application")

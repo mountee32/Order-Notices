@@ -1,3 +1,5 @@
+## order_processing.py
+
 import base64
 import html
 import logging
@@ -44,9 +46,7 @@ def process_orders():
 		}
 
 		processed_orders = set(db.get("processed_orders", []))
-		pending_orders = set(db.get("pending_orders", []))
 		logger.info(f"Read {len(processed_orders)} existing orders previously processed")
-		logger.info(f"Read {len(pending_orders)} existing orders previously marked as pending")
 
 		statuses = ["pending", "processing", "on-hold", "completed", "cancelled", "refunded", "failed"]
 		status_counts = {}
@@ -64,7 +64,7 @@ def process_orders():
 				if response.json():
 						orders = response.json()
 						all_orders.extend(orders)
-						logger.info(f"Read {len(orders)} orders from WooCommerce in 'processing' or 'pending' state (page {page})")
+						logger.info(f"Read {len(orders)} orders from WooCommerce (page {page})")
 						page += 1
 				else:
 						break
@@ -72,10 +72,10 @@ def process_orders():
 		new_orders = [
 				order for order in all_orders
 				if (order["status"] == "processing" and order["id"] not in processed_orders)
-				# Comment out the line below to stop processing pending orders
-				# or (order["status"] == "pending" and order["id"] not in pending_orders)
+				or (order["status"] == "pending" and order["id"] not in processed_orders)
 		]
-		logger.info(f"{len(new_orders)} orders have not been previously processed and will be processed now")
+
+		logger.info(f"{len(new_orders)} orders will be processed")
 
 		for order in new_orders:
 				logger.info(f"Processing order ID: {order['id']}")
@@ -120,9 +120,8 @@ def process_orders():
 				msg = MIMEMultipart()
 				if order["status"] == "processing":
 						msg["Subject"] = f"New Order - Order ID {order['id']}"
-				# Comment out the line below to stop sending emails for pending orders
-				# else:
-				#     msg["Subject"] = f"Pending Order - Order ID {order['id']}"
+				else:
+						msg["Subject"] = f"Pending Order - Order ID {order['id']}"
 				msg["From"] = smtp_username
 				msg['To'] = recipient_emails
 
@@ -140,15 +139,9 @@ def process_orders():
 
 				print(packing_slip)
 
-				if order["status"] == "processing":
-						processed_orders.add(order['id'])
-				# Comment out the line below to stop marking pending orders
-				# else:
-				#     pending_orders.add(order['id'])
+				processed_orders.add(order['id'])
 
 		db["processed_orders"] = list(processed_orders)
-		db["pending_orders"] = list(pending_orders)
 		logger.info(f"Saved {len(processed_orders)} processed orders to the Replit DB")
-		logger.info(f"Saved {len(pending_orders)} pending orders to the Replit DB")
 
 		return all_orders

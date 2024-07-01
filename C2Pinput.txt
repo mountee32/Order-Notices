@@ -10,6 +10,6 @@ each file has a header with the filename e.g. ## .replit
 
 
 ----- Instructions -----------
-how can i read/write the processed orders to a persistant replit database storage instead of a local json file?
+in the dashboard can i have CRUD controls for processed orders being displayed, I only need the delete CRUD control, if i click on an order number shown in the UI it should popup and and confirm the order number should be deleted yes/no and then act accordingly
 
 ----------------
