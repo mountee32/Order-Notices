@@ -4,80 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Processing Dashboard</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        .log-container {
-            height: 300px;
-            overflow-y: scroll;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 10px;
-            font-family: monospace;
-        }
-        .orders-container {
-            height: 100px;
-            overflow-x: auto;
-            white-space: nowrap;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 10px;
-        }
-        .order-id {
-            display: inline-block;
-            margin-right: 10px;
-            padding: 5px 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <div class="container mt-5">
-        <h1>Order Processing Dashboard</h1>
-        <p>Status: {% if status %}Running{% else %}Stopped{% endif %}</p>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-4">Order Processing Dashboard</h1>
+        <p class="mb-4">Status: <span class="font-semibold {% if status %}text-green-600{% else %}text-red-600{% endif %}">{% if status %}Running{% else %}Stopped{% endif %}</span></p>
         <form action="{{ url_for('toggle', token=request.args.get('token')) }}" method="post">
-            <button type="submit" class="btn btn-primary mb-3">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-6">
                 {% if status %}Stop{% else %}Start{% endif %} Processing
             </button>
         </form>
 
-        <h2>Order Statistics</h2>
-        <div class="row mb-3">
-            {% if order_statistics %}
-                {% for period, stats in order_statistics.items() %}
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Last {{ period }}</h5>
-                            <p class="card-text">Total Orders: {{ stats.total_orders }}</p>
-                            <p class="card-text">Total Revenue: ${{ "%.2f"|format(stats.total_revenue) }}</p>
-                            <p class="card-text">Avg Order Value: ${{ "%.2f"|format(stats.avg_order_value) }}</p>
-                            <p class="card-text">Unique Customers: {{ stats.new_customers }}</p>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="col-12">
-                    <p>No order statistics available.</p>
-                </div>
-            {% endif %}
-        </div>
-
-        <h2>Processed Orders</h2>
-        <div class="orders-container mb-3">
-            {% for order_id in processed_orders %}
-                <span class="order-id">
-                    {{ order_id }}
-                    <button class="btn btn-sm btn-danger delete-order" data-order-id="{{ order_id }}">X</button>
-                </span>
+        <h2 class="text-2xl font-semibold mb-4">Order Statistics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {% for period, stats in order_statistics.items() %}
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <h3 class="text-xl font-semibold mb-2">Last {{ period }}</h3>
+                <p>Total Orders: {{ stats.total_orders }}</p>
+                <p>Total Revenue: ${{ "%.2f"|format(stats.total_revenue) }}</p>
+                <p>Avg Order Value: ${{ "%.2f"|format(stats.avg_order_value) }}</p>
+                <p>Unique Customers: {{ stats.new_customers }}</p>
+            </div>
             {% endfor %}
         </div>
 
-        <h2>Activity Log <button id="clearLogBtn" class="btn btn-sm btn-danger ml-2"><i class="fas fa-trash"></i></button></h2>
-        <div class="log-container mb-3">
-            <pre>{{ log_content }}</pre>
+        <div class="mb-6">
+            <canvas id="orderChart"></canvas>
+        </div>
+
+        <h2 class="text-2xl font-semibold mb-4">Processed Orders</h2>
+        <div class="bg-white shadow-md rounded-lg p-4 mb-6">
+            <div class="h-40 overflow-y-auto">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                    {% for order_id in processed_orders %}
+                    <div class="bg-gray-100 rounded-lg p-2 flex justify-between items-center">
+                        <span>{{ order_id }}</span>
+                        <button class="delete-order text-red-500 hover:text-red-700" data-order-id="{{ order_id }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-semibold mb-4">Activity Log <button id="clearLogBtn" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded ml-2"><i class="fas fa-trash"></i></button></h2>
+        <div class="bg-white shadow-md rounded-lg p-4 overflow-x-auto">
+            <pre class="text-sm">{{ log_content }}</pre>
         </div>
     </div>
 
@@ -121,6 +97,32 @@
                         alert('Error clearing log: ' + error);
                     }
                 });
+            }
+        });
+
+        // Chart.js
+        var ctx = document.getElementById('orderChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['24h', '7d', '30d'],
+                datasets: [{
+                    label: 'Total Orders',
+                    data: [
+                        {{ order_statistics['24h'].total_orders }},
+                        {{ order_statistics['7d'].total_orders }},
+                        {{ order_statistics['30d'].total_orders }}
+                    ],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
             }
         });
     });

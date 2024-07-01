@@ -24,27 +24,24 @@ keep_running = True
 
 # Configure logging
 logger = logging.getLogger('my_logger')
-logger.setLevel(logging.DEBUG)  # Change to DEBUG for more detailed logs
+logger.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler('app.log')
 file_handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-# Also keep console handler for immediate feedback
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
-# Add database log handler
 class DatabaseLogHandler(logging.Handler):
 		def emit(self, record):
 				log_entry = self.format(record)
 				if "log_entries" not in db:
 						db["log_entries"] = []
-				db["log_entries"].insert(0, log_entry)  # Insert at the beginning of the list
-				# Keep only the last 1000 log entries
+				db["log_entries"].insert(0, log_entry)
 				db["log_entries"] = db["log_entries"][:1000]
 
 db_handler = DatabaseLogHandler()
@@ -59,13 +56,13 @@ def background_task():
 				all_orders = process_orders()
 				update_order_statistics(all_orders)
 				logger.info("Background task completed")
-				time.sleep(300)  # Run every 5 minutes
+				time.sleep(300)
 
 def token_required(f):
 		@wraps(f)
 		def decorated_function(*args, **kwargs):
 				token = request.args.get('token')
-				logger.info(f"Received token: {token}")  # Debugging log
+				logger.info(f"Received token: {token}")
 				if token and token == SECRET_TOKEN:
 						return f(*args, **kwargs)
 				else:
@@ -76,7 +73,7 @@ def token_required(f):
 def get_processed_orders():
 		try:
 				orders = db.get("processed_orders", [])
-				orders = list(orders)  # Ensure it's a regular Python list
+				orders = list(orders)
 				logger.debug(f"Loaded {len(orders)} processed orders from Replit DB")
 				return orders
 		except Exception as e:
@@ -91,7 +88,7 @@ def get_log_content():
 def home():
 		logger.info("Home route accessed")
 		processed_orders = get_processed_orders()
-		processed_orders.sort(reverse=True)  # Sort in descending order
+		processed_orders.sort(reverse=True)
 		log_content = get_log_content()
 		order_statistics = get_order_statistics()
 		logger.info(f"Rendering home page with order_statistics: {order_statistics}")
